@@ -174,9 +174,6 @@ namespace TaskClient
                 return;
             }
 
-            //
-            // Get an access token to call the To Do service.
-            //
             AuthenticationResult result = null;
             try
             {

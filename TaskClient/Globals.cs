@@ -17,7 +17,7 @@ namespace TaskClient
 
         public static string taskServiceUrl = "https://localhost:44332";
         public static string aadInstance = "https://login.microsoftonline.com/";
-        public static string redirectUri = "urn:ietf:oaauth:2.0:oob";
+        public static string redirectUri = "urn:ietf:wg:oauth:2.0:oob";
 
     }
 }
