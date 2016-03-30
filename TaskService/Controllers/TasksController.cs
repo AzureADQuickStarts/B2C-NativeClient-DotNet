@@ -14,6 +14,7 @@ namespace TaskService.Controllers
     {
         private TasksServiceContext db = new TasksServiceContext();
 
+        [Route("api/tasks")]
         public IEnumerable<Models.Task> Get()
         {
             string owner = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
@@ -21,13 +22,7 @@ namespace TaskService.Controllers
             return userTasks;
         }
 
-        //// GET api/values/5
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
-
-        // POST api/values
+        [Route("api/tasks")]
         public void Post(Models.Task task)
         {
             if (task.task == null || task.task == string.Empty)
@@ -41,7 +36,7 @@ namespace TaskService.Controllers
             db.SaveChanges();
         }
 
-        // DELETE api/values/5
+        [Route("api/tasks/{id}")]
         public void Delete(int id)
         {
 
