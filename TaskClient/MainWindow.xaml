@@ -75,7 +75,7 @@
         		IsReadOnly="True" MinWidth="350"  CanUserAddRows="False" CanUserDeleteRows="False" Height="230" GridLinesVisibility="None" Background="#FFFFFFFF">
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="To Do Items" Binding="{Binding task}" Width="*"/>
+                    <DataGridTextColumn Header="To Do Items" Binding="{Binding Text}" Width="*"/>
                 </DataGrid.Columns>
 
             </DataGrid>
