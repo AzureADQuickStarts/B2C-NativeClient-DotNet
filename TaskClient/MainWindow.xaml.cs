@@ -57,45 +57,16 @@ namespace TaskClient
         {
             base.OnInitialized(e);
 
-            pca = new PublicClientApplication(Globals.clientId)
-            {
-                // ADAL implements an in-memory cache by default.  Since we want tokens to persist when the user closes the app, 
-                // we've extended the ADAL TokenCache and created a simple FileCache in this app.
-                UserTokenCache = new FileCache(),
-            };
+            // TODO: Create the PublicClientApplication 
 
             AuthenticationResult result = null;
             try
             {
-                // If the user has has a token cached with any policy, we'll display them as signed-in.
-                TokenCacheItem tci = pca.UserTokenCache.ReadItems(Globals.clientId).Where(i => i.Scope.Contains(Globals.clientId) && !string.IsNullOrEmpty(i.Policy)).FirstOrDefault();
-                string existingPolicy = tci == null ? null : tci.Policy;
-                result = await pca.AcquireTokenSilentAsync(new string[] { Globals.clientId }, string.Empty, Globals.authority, existingPolicy, false);
-
-                SignInButton.Visibility = Visibility.Collapsed;
-                SignUpButton.Visibility = Visibility.Collapsed;
-                EditProfileButton.Visibility = Visibility.Visible;
-                SignOutButton.Visibility = Visibility.Visible;
-                UsernameLabel.Content = result.User.Name;
-                GetTodoList();
+                // TODO: Check to see if the user is already signed-in.
             }
             catch (MsalException ex)
             {
-                if (ex.ErrorCode == "failed_to_acquire_token_silently")
-                {
-                    // There are no tokens in the cache.  Proceed without calling the To Do list service.
-                }
-                else
-                {
-                    // An unexpected error occurred.
-                    string message = ex.Message;
-                    if (ex.InnerException != null)
-                    {
-                        message += "Inner Exception : " + ex.InnerException.Message;
-                    }
-                    MessageBox.Show(message);
-                }
-                return;
+                // TODO: Handle the exception if the user is not signed-in.
             }
         }
 
@@ -104,41 +75,14 @@ namespace TaskClient
             AuthenticationResult result = null;
             try
             {
-                // Use the app's clientId here as the scope parameter, indicating that we want a token to the our own backend API
-                // Use the UiOptions.ForceLogin flag to indicate to MSAL that it should show a sign-up UI no matter what.
-                result = await pca.AcquireTokenAsync(new string[] { Globals.clientId },
-                     string.Empty, UiOptions.ForceLogin, null, null, Globals.authority,
-                     Globals.signUpPolicy);
+                // TODO: Execute the sign up policy
 
-                // Indicate in the app that the user is signed in.
-                SignInButton.Visibility = Visibility.Collapsed;
-                SignUpButton.Visibility = Visibility.Collapsed;
-                EditProfileButton.Visibility = Visibility.Visible;
-                SignOutButton.Visibility = Visibility.Visible;
-
-                // When the request completes successfully, you can get user information form the AuthenticationResult
-                UsernameLabel.Content = result.User.Name;
-
-                // After the sign up successfully completes, display the user's To-Do List
-                GetTodoList();
+                // TODO: Show the user as signed in, and get their To-Do list
             }
 
-            // Handle any exeptions that occurred during execution of the policy.
             catch (MsalException ex)
             {
-                if (ex.ErrorCode != "authentication_canceled")
-                {
-                    // An unexpected error occurred.
-                    string message = ex.Message;
-                    if (ex.InnerException != null)
-                    {
-                        message += "Inner Exception : " + ex.InnerException.Message;
-                    }
-
-                    MessageBox.Show(message);
-                }
-
-                return;
+                // TODO: Handle exceptions from MSAL
             }
         }
 
@@ -147,9 +91,7 @@ namespace TaskClient
             AuthenticationResult result = null;
             try
             {
-                result = await pca.AcquireTokenAsync(new string[] { Globals.clientId },
-                    string.Empty, UiOptions.ForceLogin, null, null, Globals.authority,
-                    Globals.signInPolicy);
+                // TODO: Execute the sign in policy
 
                 SignInButton.Visibility = Visibility.Collapsed;
                 SignUpButton.Visibility = Visibility.Collapsed;
@@ -182,9 +124,8 @@ namespace TaskClient
             AuthenticationResult result = null;
             try
             {
-                result = await pca.AcquireTokenAsync(new string[] { Globals.clientId },
-                    string.Empty, UiOptions.ForceLogin, null, null, Globals.authority,
-                    Globals.editProfilePolicy);
+                // TODO: Execute the edit profile policy
+
                 UsernameLabel.Content = result.User.Name;
                 GetTodoList();
             }
@@ -208,11 +149,7 @@ namespace TaskClient
 
         private void SignOut(object sender, RoutedEventArgs e)
         {
-            // Clear any remnants of the user's session.
-            pca.UserTokenCache.Clear(Globals.clientId);
-
-            // This is a helper method that clears browser cookies in the browser control that MSAL uses, it is not part of MSAL.
-            ClearCookies();
+            // TODO: Sign the user out by clearing tokens
 
             // Update the UI to show the user as signed out.
             TaskList.ItemsSource = string.Empty;
@@ -225,49 +162,9 @@ namespace TaskClient
 
         private async void GetTodoList()
         {
-            AuthenticationResult result = null;
-            try
-            {
-                // Here we want to check for a cached token, independent of whatever policy was used to acquire it.
-                TokenCacheItem tci = pca.UserTokenCache.ReadItems(Globals.clientId).Where(i => i.Scope.Contains(Globals.clientId) && !string.IsNullOrEmpty(i.Policy)).FirstOrDefault();
-                string existingPolicy = tci == null ? null : tci.Policy;
+            // TODO: Get a cached token using MSAL
 
-                // Use acquireTokenSilent to indicate that MSAL should throw an exception if a token cannot be acquired
-                result = await pca.AcquireTokenSilentAsync(new string[] { Globals.clientId }, string.Empty, Globals.authority, existingPolicy, false);
-
-            }
-            // If a token could not be acquired silently, we'll catch the exception and show the user a message.
-            catch (MsalException ex)
-            {
-                // There is no access token in the cache, so prompt the user to sign-in.
-                if (ex.ErrorCode == "failed_to_acquire_token_silently")
-                {
-                    MessageBox.Show("Please sign up or sign in first");
-                    SignInButton.Visibility = Visibility.Visible;
-                    SignUpButton.Visibility = Visibility.Visible;
-                    EditProfileButton.Visibility = Visibility.Collapsed;
-                    SignOutButton.Visibility = Visibility.Collapsed;
-                    UsernameLabel.Content = string.Empty;
-                }
-                else
-                {
-                    // An unexpected error occurred.
-                    string message = ex.Message;
-                    if (ex.InnerException != null)
-                    {
-                        message += "Inner Exception : " + ex.InnerException.Message;
-                    }
-                    MessageBox.Show(message);
-                }
-
-                return;
-            }
-
-            // Once the token has been returned by MSAL, add it to the http authorization header, before making the call to access the To Do list service.
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
-
-            // Call the To Do list service.
-            HttpResponseMessage response = await httpClient.GetAsync(Globals.taskServiceUrl + "/api/tasks");
+            // TODO: Use the token to call the task web API
 
             if (response.IsSuccessStatusCode)
             {
